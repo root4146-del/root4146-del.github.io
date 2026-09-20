@@ -242,7 +242,9 @@
 
   (function buildMap() {
     var dLat = 0.0035, dLng = 0.0055;
-    var bbox = [V.lng - dLng, V.lat - dLat, V.lng + dLng, V.lat + dLat].join('%2C');
+    var r6 = function (n) { return n.toFixed(6); };
+    var bbox = [r6(V.lng - dLng), r6(V.lat - dLat),
+                r6(V.lng + dLng), r6(V.lat + dLat)].join('%2C');
     var src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + bbox +
               '&layer=mapnik&marker=' + V.lat + '%2C' + V.lng;
     $('[data-map]').innerHTML =

@@ -32,13 +32,16 @@ window.WEDDING = {
     area: '부천',          // 짧게 부를 때 쓰는 지역명 ("부천 MJ컨벤션")
     address: '경기 부천시 소사구 경인로 386',
     addressDetail: '(소사본동)',
-    lat: 37.4820441,
-    lng: 126.7997547,
+    /* MJ컨벤션 건물 좌표 (네이버 지도 place 37537597 기준).
+       지도 마커와 티맵 길안내 목적지가 이 좌표를 씁니다. */
+    lat: 37.4818021,
+    lng: 126.7984948,
     /* 길찾기 앱에서 검색할 이름 */
     searchKeyword: '부천MJ컨벤션',
     tel: '',            // 예식장 대표번호를 아시면 넣어주세요. 비우면 버튼이 숨겨집니다.
 
-    /* 지도 앱 바로가기 — 비워두면 검색어/좌표로 자동 생성됩니다. */
+    /* 지도 앱 바로가기 — 비워두면 아래 좌표와 searchKeyword 로 자동 생성됩니다.
+       티맵은 위 lat/lng(건물 좌표)로 길안내 목적지를 잡습니다. */
     mapLinks: {
       naver: 'https://map.naver.com/p/search/%EB%B6%80%EC%B2%9CMJ%EC%BB%A8%EB%B2%A4%EC%85%98/place/37537597',
       kakao: 'https://map.kakao.com/?q=%EB%B6%80%EC%B2%9CMJ%EC%BB%A8%EB%B2%A4%EC%85%98',
@@ -77,7 +80,9 @@ window.WEDDING = {
     {
       side: '신랑측',
       items: [
-        { role: '신랑', name: '임형근', bank: '토스뱅크', number: '1002-4094-0171' }
+        { role: '신랑', name: '임형근', bank: '토스뱅크', number: '1002-4094-0171' },
+        { role: '아버지', name: '임기순', bank: '기업은행', number: '293-079798-01-016' },
+        { role: '어머니', name: '이선옥', bank: '하나은행', number: '280-890653-47007' }
       ]
     },
     {

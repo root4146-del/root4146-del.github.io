@@ -1,0 +1,10 @@
+# 원본 사진 보관함 (약 170MB) — 저장소에 올리지 않습니다.
+# 웹에 쓰이는 사진은 assets/img 안에 최적화되어 들어가 있습니다.
+originals/
+
+# OS / 편집기
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

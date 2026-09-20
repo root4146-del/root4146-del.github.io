@@ -1,0 +1,563 @@
+@charset "utf-8";
+
+/* ============================================================
+   임형근 ♥ 신상은 — 모바일 청첩장
+   본문 글꼴: Pretendard   /   팔레트: 올리브 그린 + 아이보리
+   ============================================================ */
+
+:root {
+  --bg:        #E9E9EA;   /* 화면 바깥 여백 */
+  --paper:     #FDFCF8;   /* 청첩장 바탕 */
+  --olive:     #7A8555;
+  --olive-dk:  #5F6941;
+  --ink:       #3F4038;
+  --muted:     #8D8E83;
+  --line:      #E4E1D6;
+  --sun:       #B4685F;
+
+  --w: 430px;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+
+  --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+          system-ui, 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic',
+          'Noto Sans KR', sans-serif;
+  /* 영문 소제목(WEDDING DAY 등)에 쓰이는 글꼴.
+     명조/세리프 느낌을 원하면 여기만 바꾸면 됩니다. */
+  --font-en: var(--font);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.82;
+  letter-spacing: -.012em;
+  color-scheme: light;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img { max-width: 100%; display: block; }
+[hidden] { display: none !important; }
+p, h1, figure, ul { margin: 0; padding: 0; }
+ul { list-style: none; }
+
+button {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── 청첩장 본체 ─────────────────────────────────────────── */
+.invite {
+  max-width: var(--w);
+  margin: 0 auto;
+  background: var(--paper);
+  box-shadow: 0 0 40px rgba(0, 0, 0, .07);
+  overflow: hidden;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ── 공통 섹션 ───────────────────────────────────────────── */
+.section { padding: 72px 30px; text-align: center; }
+.section--wide { padding-left: 18px; padding-right: 18px; }
+
+.section__en {
+  font-family: var(--font-en);
+  font-size: .96rem;
+  font-weight: 500;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  color: var(--olive);
+  line-height: 1.3;
+}
+
+.section__lead {
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  color: var(--olive-dk);
+  margin-bottom: 12px;
+}
+
+.section__hint {
+  font-size: .8rem;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 26px;
+}
+
+.rule {
+  width: 1px;
+  height: 34px;
+  margin: 20px auto 30px;
+  background: linear-gradient(to bottom, var(--olive), rgba(122, 133, 85, 0));
+}
+
+.ornament { color: var(--olive); }
+.ornament svg { width: 72px; height: auto; margin: 0 auto; }
+.ornament--sm svg { width: 58px; opacity: .8; }
+
+/* ── 표지 ───────────────────────────────────────────────── */
+.cover { padding: 52px 26px 44px; text-align: center; }
+
+.cover__title {
+  margin-top: 18px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: .34em;
+  text-indent: .34em;
+  color: var(--olive-dk);
+}
+
+.cover__photo { margin: 34px 0 32px; }
+.cover__photo img {
+  width: 100%;
+  height: auto;
+  border-radius: 1px;
+}
+
+.cover__names {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  font-size: 1.24rem;
+  color: var(--ink);
+}
+.cover__names b { font-weight: 600; letter-spacing: .01em; }
+.cover__names .tag {
+  font-size: .74rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+.cover__names .amp {
+  font-size: 1.24rem;
+  font-weight: 300;
+  color: var(--muted);
+  margin: 0 9px;
+}
+
+.cover__meta {
+  margin-top: 15px;
+  font-size: .94rem;
+  color: var(--ink);
+}
+.cover__meta + .cover__meta { margin-top: 3px; }
+
+.scroll-cue {
+  width: 1px;
+  height: 46px;
+  margin: 42px auto 0;
+  background: var(--line);
+  overflow: hidden;
+}
+.scroll-cue span {
+  display: block;
+  width: 1px;
+  height: 46px;
+  background: var(--olive);
+  animation: cue 2.1s var(--ease) infinite;
+}
+@keyframes cue {
+  0%        { transform: translateY(-100%); }
+  55%, 100% { transform: translateY(100%); }
+}
+
+/* ── 인사말 ─────────────────────────────────────────────── */
+.greeting {
+  font-size: .95rem;
+  line-height: 2.15;
+  color: var(--ink);
+}
+
+.parents {
+  margin-top: 42px;
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+  align-items: baseline;
+  column-gap: 9px;
+  row-gap: 6px;
+  font-size: .94rem;
+  white-space: nowrap;
+}
+.parents .p-pair { text-align: right; }
+.parents .p-of { color: var(--muted); font-size: .85rem; }
+.parents .p-child { font-weight: 600; text-align: left; }
+.parents__dot { color: var(--olive); font-style: normal; padding: 0 4px; }
+
+/* ── 예식 안내 ───────────────────────────────────────────── */
+.daytitle {
+  font-size: 1.02rem;
+  line-height: 1.95;
+  margin-bottom: 34px;
+}
+.daytitle b { font-weight: 600; }
+.daytitle .sub {
+  display: block;
+  margin-top: 2px;
+  font-size: .88rem;
+  color: var(--muted);
+}
+
+.cal {
+  max-width: 310px;
+  margin: 0 auto;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 0 20px;
+}
+.cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 7px;
+}
+.cal__head {
+  font-family: var(--font-en);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  color: var(--muted);
+  padding-bottom: 9px;
+}
+.cal__head.is-sun { color: var(--sun); }
+.cal__cell {
+  font-size: .89rem;
+  line-height: 30px;
+  height: 30px;
+  color: var(--ink);
+}
+.cal__cell.is-sun { color: var(--sun); }
+.cal__cell.is-mark {
+  position: relative;
+  color: #fff;
+  font-weight: 600;
+}
+.cal__cell.is-mark::before {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  background: var(--olive);
+  border-radius: 50%;
+}
+.cal__cell.is-mark > span { position: relative; z-index: 1; }
+
+.dday {
+  margin-top: 26px;
+  font-size: .93rem;
+  color: var(--ink);
+}
+.dday b { color: var(--olive-dk); font-weight: 600; }
+
+/* ── 갤러리 ─────────────────────────────────────────────── */
+/* 6칸 기준 그리드 — 보통 사진은 2칸(=3열), 가로 사진은 6칸,
+   마지막 줄에 2장만 남을 때는 3칸씩 채워 빈자리가 생기지 않게 합니다. */
+.grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+.grid__item {
+  grid-column: span 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #F1EFE8;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  display: block;
+}
+.grid__item--wide { grid-column: span 6; aspect-ratio: 3 / 2; }
+.grid__item--half { grid-column: span 3; aspect-ratio: 4 / 5; }
+.grid__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .5s var(--ease);
+}
+.grid__item:active img { transform: scale(1.04); }
+
+/* ── 오시는 길 ───────────────────────────────────────────── */
+.place {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--olive-dk);
+}
+.addr {
+  margin-top: 5px;
+  font-size: .88rem;
+  color: var(--muted);
+}
+
+.map {
+  margin: 24px 0 16px;
+  border: 1px solid var(--line);
+  background: #F1EFE8;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.map iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+.btnrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: center;
+}
+
+.btn {
+  flex: 1 1 0;
+  min-width: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 8px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-size: .86rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  text-align: center;
+  transition: background .2s, border-color .2s, color .2s;
+}
+.btn--map { min-width: 108px; }
+.btn--map svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+.btn:active { background: #F4F2EA; border-color: var(--olive); }
+.btn--fill {
+  background: var(--olive);
+  border-color: var(--olive);
+  color: #fff;
+}
+.btn--fill:active { background: var(--olive-dk); border-color: var(--olive-dk); color: #fff; }
+
+.transport {
+  margin-top: 34px;
+  text-align: left;
+  border-top: 1px solid var(--line);
+}
+.transport li {
+  display: flex;
+  gap: 14px;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.transport .ico {
+  flex: 0 0 auto;
+  width: 20px;
+  color: var(--olive);
+  margin-top: 4px;
+}
+.transport .ico svg { width: 20px; height: 20px; }
+.transport .t-label {
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--olive-dk);
+  margin-bottom: 1px;
+}
+.transport .t-line {
+  font-size: .88rem;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+/* ── 마음 전하실 곳 ──────────────────────────────────────── */
+.accounts { display: grid; gap: 12px; }
+.acct {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 18px 16px;
+  text-align: left;
+  background: #FCFBF6;
+}
+.acct__side {
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--olive-dk);
+  text-align: center;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.acct__row { display: flex; align-items: center; gap: 10px; }
+.acct__row + .acct__row { margin-top: 14px; }
+.acct__info { flex: 1 1 auto; min-width: 0; }
+.acct__who { font-size: .79rem; color: var(--muted); line-height: 1.6; }
+.acct__num {
+  font-size: .94rem;
+  line-height: 1.6;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.acct__num b { font-weight: 600; }
+.acct__copy {
+  flex: 0 0 auto;
+  padding: 8px 13px;
+  background: transparent;
+  border: 1px solid var(--olive);
+  border-radius: 3px;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--olive-dk);
+  white-space: nowrap;
+}
+.acct__copy:active { background: var(--olive); color: #fff; }
+
+/* ── 공유 · 푸터 ─────────────────────────────────────────── */
+.thanks {
+  margin: 22px 0 30px;
+  font-size: .94rem;
+  line-height: 2.05;
+  color: var(--ink);
+}
+
+.foot {
+  padding: 34px 20px calc(40px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-en);
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  color: var(--muted);
+}
+.foot p + p { margin-top: 7px; }
+
+/* ── 스크롤 등장 ─────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .95s var(--ease), transform .95s var(--ease);
+}
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* ── 사진 확대 보기 ──────────────────────────────────────── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: #141412;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fade .25s var(--ease);
+}
+/* 열릴 때 프로그램이 포커스를 옮기므로 테두리는 그리지 않습니다. */
+.lightbox:focus { outline: none; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.lb__stage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 58px 16px 62px;
+}
+.lb__stage img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 밝은 사진 위에서도 보이도록 반투명 원형 배경을 깝니다. */
+.lb__close,
+.lb__nav {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(20, 20, 18, .45);
+  color: #fff;
+  z-index: 2;
+  line-height: 1;
+  transition: background .2s;
+}
+.lb__close:active,
+.lb__nav:active { background: rgba(20, 20, 18, .75); }
+
+.lb__close {
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  font-size: 1.6rem;
+}
+.lb__nav {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.9rem;
+}
+.lb__nav--prev { left: 10px; padding-right: 3px; }
+.lb__nav--next { right: 10px; padding-left: 3px; }
+
+.lb__count {
+  position: absolute;
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-en);
+  font-size: .84rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  color: rgba(255, 255, 255, .7);
+}
+
+/* ── 알림 토스트 ─────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(34px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 10px);
+  z-index: 120;
+  max-width: calc(100vw - 48px);
+  padding: 11px 20px;
+  background: rgba(46, 47, 42, .93);
+  color: #fff;
+  border-radius: 999px;
+  font-size: .83rem;
+  opacity: 0;
+  transition: opacity .28s var(--ease), transform .28s var(--ease);
+  pointer-events: none;
+}
+.toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── 작은 화면 보정 ──────────────────────────────────────── */
+@media (max-width: 360px) {
+  body { font-size: 14.5px; }
+  .section { padding: 62px 22px; }
+  .cover { padding: 44px 20px 38px; }
+  .cover__title { font-size: 1.18rem; }
+  .cover__names { font-size: 1.14rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .scroll-cue span { animation: none; }
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -5,7 +5,9 @@ GitHub Pages로 서비스하는 모바일 청첩장입니다.
 
 > **2027년 1월 23일 (토) 오후 2시 · 부천 MJ컨벤션 3층 다이너스티홀**
 
-배포 방법은 [DEPLOY.md](DEPLOY.md)를 참고하세요.
+🔗 <https://root4146-del.github.io/>
+
+수정·배포 방법은 [DEPLOY.md](DEPLOY.md)를 참고하세요.
 
 ---
 
@@ -20,23 +22,38 @@ GitHub Pages로 서비스하는 모바일 청첩장입니다.
 | 오시는 길 | 지도, 길찾기(네이버·카카오·티맵), 주소 복사, 교통편 |
 | 마음 전하실 곳 | 신랑측·신부측 계좌, 번호 복사 |
 | 공유 | 공유하기(모바일 공유 시트), 링크 복사 |
+| 배경음악 | 우측 상단 토글 버튼 · 자동재생이 막히면 첫 터치에 재생 |
+
+### 배경음악
+
+드뷔시 「달빛」(*Clair de Lune*, 1905 피아노 솔로) — **퍼블릭 도메인**.
+곡과 연주 모두 저작권이 소멸되어 별도 표기 의무 없이 자유롭게 쓸 수 있습니다.
+출처: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Clair_de_Lune_by_Claude_Debussy_(1905,_piano_solo).opus) · 4분 36초 / 5.4MB.
+
+파일은 `preload="none"` 이라 재생하기 전에는 내려받지 않습니다.
+다른 곡으로 바꾸려면 `assets/audio/bgm.mp3` 를 교체하세요.
 
 ## 폴더 구조
 
 ```text
 wedding/
-├─ index.html                 청첩장 본문
+├─ index.html                 청첩장 본문 (og 미리보기·아이콘 링크 포함)
+├─ favicon.ico / favicon.svg  브라우저 탭 아이콘
+├─ site.webmanifest           홈 화면 추가용 설정
 ├─ assets/
-│  ├─ css/style.css           디자인 (색상은 맨 위 :root 에서 한 번에 변경)
-│  ├─ js/config.js            ← 이름·날짜·장소·계좌·교통편 등 모든 내용
-│  ├─ js/main.js              달력·갤러리·지도·복사 동작
+│  ├─ css/style.css           디자인 (색상·글꼴은 맨 위 :root 에서 한 번에 변경)
+│  ├─ js/config.js            ← 이름·날짜·장소·계좌·교통편·지도링크 등 모든 내용
+│  ├─ js/main.js              달력·갤러리·지도·복사·배경음악 동작
+│  ├─ audio/bgm.mp3           배경음악 (퍼블릭 도메인)
 │  └─ img/
 │     ├─ cover.jpg            표지 사진
-│     ├─ og.jpg               카카오톡 미리보기 카드 이미지
+│     ├─ og.jpg               카카오톡 미리보기 카드 이미지 (1200×630)
+│     ├─ icon-180/192/512.png 홈 화면 아이콘
 │     ├─ gallery/g01~g18.jpg  확대용 (1200px)
 │     └─ thumb/g01~g18.jpg    목록용 (640px)
 ├─ originals/                 원본 사진 보관함 (저장소에는 올리지 않음)
-├─ tools/build_images.py      원본 → 웹용 이미지 재생성 스크립트
+├─ tools/build_images.py      원본 → 웹용 이미지 재생성
+├─ tools/build_icons.py       파비콘 · 홈 화면 아이콘 재생성
 └─ DEPLOY.md                  배포 안내서
 ```
 

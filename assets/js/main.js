@@ -301,11 +301,20 @@
     };
     var html = (V.transport || []).map(function (t) {
       var p = ICONS[t.icon] || ICONS.car;
+      var body = t.lines.map(function (l) {
+        if (typeof l === 'string') {
+          return '<p class="t-line">' + escapeHtml(l) + '</p>';
+        }
+        /* { name, desc } — 정류장 이름과 버스 번호처럼 둘로 나뉘는 줄 */
+        return '<p class="t-line t-line--pair">' +
+               '<span class="t-name">' + escapeHtml(l.name) + '</span>' +
+               '<span class="t-desc">' + escapeHtml(l.desc) + '</span></p>';
+      }).join('');
+
       return '<li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
              ' stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg></span>' +
-             '<div><p class="t-label">' + escapeHtml(t.label) + '</p>' +
-             t.lines.map(function (l) { return '<p class="t-line">' + escapeHtml(l) + '</p>'; }).join('') +
-             '</div></li>';
+             '<div class="t-body"><p class="t-label">' + escapeHtml(t.label) + '</p>' +
+             body + '</div></li>';
     }).join('');
     $('[data-transport]').innerHTML = html;
   })();
@@ -350,6 +359,60 @@
     }
   });
   bindCopy($('[data-copy-url]'), shareUrl, '링크를 복사했어요.');
+
+  /* ── 배경음악 ────────────────────────────────────────── */
+  (function bgm() {
+    var audio = document.getElementById('bgm');
+    var btn = $('[data-bgm]');
+    if (!audio || !btn) return;
+
+    var KEY = 'wedding-bgm-off';
+    var stopped = false;
+    try { stopped = sessionStorage.getItem(KEY) === '1'; } catch (e) {}
+
+    function paint(on) {
+      btn.classList[on ? 'add' : 'remove']('is-playing');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('aria-label', on ? '배경음악 끄기' : '배경음악 켜기');
+    }
+
+    try { audio.volume = 0.45; } catch (e) {}   /* iOS 는 무시합니다 */
+    audio.addEventListener('play', function () { paint(true); });
+    audio.addEventListener('pause', function () { paint(false); });
+
+    function start() {
+      var p = audio.play();
+      return p && p.catch ? p : { catch: function () {} };
+    }
+
+    btn.addEventListener('click', function () {
+      if (audio.paused) {
+        stopped = false;
+        try { sessionStorage.removeItem(KEY); } catch (e) {}
+        start().catch(function () { toast('브라우저가 음악 재생을 막고 있어요.'); });
+      } else {
+        audio.pause();
+        stopped = true;
+        try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+      }
+    });
+
+    /* 모바일 브라우저는 자동 재생을 막습니다.
+       막히면 화면을 처음 한 번 터치할 때 재생을 시작합니다. */
+    if (!stopped) {
+      start().catch(function () {
+        var EVENTS = ['touchend', 'click', 'keydown'];
+        var off = function () {
+          EVENTS.forEach(function (ev) { document.removeEventListener(ev, once); });
+        };
+        var once = function () {
+          if (!stopped && audio.paused) start().catch(function () {});
+          off();
+        };
+        EVENTS.forEach(function (ev) { document.addEventListener(ev, once); });
+      });
+    }
+  })();
 
   /* ── 푸터 ────────────────────────────────────────────── */
   $('[data-foot-date]').textContent =

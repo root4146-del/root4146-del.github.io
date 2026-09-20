@@ -58,6 +58,55 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ── 배경음악 버튼 ──────────────────────────────────────── */
+/* 청첩장 카드(최대 430px)의 오른쪽 위에 붙도록, 같은 폭의
+   투명 컨테이너를 화면 가운데에 고정하고 그 안에서 오른쪽 정렬합니다. */
+.bgm {
+  position: fixed;
+  top: calc(13px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(var(--w), 100%);
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 14px;
+  z-index: 60;
+  pointer-events: none;
+}
+.bgm__btn {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(253, 252, 248, .82);
+  color: var(--olive-dk);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, .06);
+  transition: background .2s, color .2s, border-color .2s;
+}
+.bgm__btn svg { width: 17px; height: 17px; }
+.bgm__btn .bgm__on { display: none; }
+.bgm__btn .bgm__off { display: block; }
+
+.bgm__btn.is-playing {
+  background: var(--olive);
+  border-color: var(--olive);
+  color: #fff;
+}
+.bgm__btn.is-playing .bgm__on { display: block; animation: sway 2.4s var(--ease) infinite; }
+.bgm__btn.is-playing .bgm__off { display: none; }
+
+@keyframes sway {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1.5px); }
+}
+
 /* ── 청첩장 본체 ─────────────────────────────────────────── */
 .invite {
   max-width: var(--w);
@@ -365,17 +414,31 @@ button {
   margin-top: 4px;
 }
 .transport .ico svg { width: 20px; height: 20px; }
+.transport .t-body { flex: 1 1 auto; min-width: 0; }
 .transport .t-label {
-  font-size: .8rem;
+  font-size: .81rem;
   font-weight: 600;
   letter-spacing: .04em;
   color: var(--olive-dk);
-  margin-bottom: 1px;
+  margin-bottom: 4px;
 }
 .transport .t-line {
-  font-size: .88rem;
-  line-height: 1.7;
+  font-size: .86rem;
+  line-height: 1.68;
   color: var(--ink);
+}
+.transport .t-line--pair {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.transport .t-name { flex: 1 1 auto; min-width: 0; }
+.transport .t-desc {
+  flex: 0 0 auto;
+  color: var(--olive-dk);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── 마음 전하실 곳 ──────────────────────────────────────── */

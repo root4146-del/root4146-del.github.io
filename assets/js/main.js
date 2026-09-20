@@ -324,19 +324,51 @@
   /* ── 마음 전하실 곳 ──────────────────────────────────── */
   (function buildAccounts() {
     var wrap = $('[data-accounts]');
-    wrap.innerHTML = W.accounts.map(function (g) {
-      return '<div class="acct"><p class="acct__side">' + escapeHtml(g.side) + '</p>' +
-        g.items.map(function (a) {
-          return '<div class="acct__row">' +
-            '<div class="acct__info">' +
-              '<p class="acct__who">' + escapeHtml(a.role) + ' ' + escapeHtml(a.name) + '</p>' +
-              '<p class="acct__num">' + escapeHtml(a.bank) + ' <b>' + escapeHtml(a.number) + '</b></p>' +
-            '</div>' +
-            '<button type="button" class="acct__copy" data-num="' + escapeHtml(a.number) + '">복사</button>' +
-          '</div>';
-        }).join('') +
+    var CHEV = '<svg class="acct__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
+               ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+               '<path d="M5 8.5 12 15.5 19 8.5"/></svg>';
+
+    wrap.innerHTML = W.accounts.map(function (g, i) {
+      var id = 'acct-panel-' + i;
+      return '<div class="acct">' +
+        '<button type="button" class="acct__head" aria-expanded="false" aria-controls="' + id + '">' +
+          '<span>' + escapeHtml(g.side) + '</span>' + CHEV +
+        '</button>' +
+        '<div class="acct__panel" id="' + id + '"><div class="acct__inner">' +
+          g.items.map(function (a) {
+            return '<div class="acct__row">' +
+              '<div class="acct__info">' +
+                '<p class="acct__who">' + escapeHtml(a.role) + ' ' + escapeHtml(a.name) + '</p>' +
+                '<p class="acct__num">' + escapeHtml(a.bank) + ' <b>' + escapeHtml(a.number) + '</b></p>' +
+              '</div>' +
+              '<button type="button" class="acct__copy" data-num="' + escapeHtml(a.number) + '">복사</button>' +
+            '</div>';
+          }).join('') +
+        '</div></div>' +
       '</div>';
     }).join('');
+
+    /* 열기 / 닫기 — 양쪽을 따로 여닫을 수 있습니다. */
+    Array.prototype.forEach.call(wrap.querySelectorAll('.acct__head'), function (head) {
+      var panel = document.getElementById(head.getAttribute('aria-controls'));
+      head.addEventListener('click', function () {
+        var open = head.getAttribute('aria-expanded') === 'true';
+        head.setAttribute('aria-expanded', open ? 'false' : 'true');
+        if (open) {
+          panel.style.maxHeight = panel.scrollHeight + 'px';   /* 현재 높이 고정 후 */
+          requestAnimationFrame(function () { panel.style.maxHeight = '0px'; });
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + 'px';
+        }
+      });
+      /* 화면 크기가 바뀌어 내용 높이가 달라져도 잘리지 않도록 */
+      panel.addEventListener('transitionend', function (e) {
+        if (e.propertyName === 'max-height' &&
+            head.getAttribute('aria-expanded') === 'true') {
+          panel.style.maxHeight = 'none';
+        }
+      });
+    });
 
     Array.prototype.forEach.call(wrap.querySelectorAll('[data-num]'), function (btn) {
       bindCopy(btn, btn.dataset.num, '계좌번호를 복사했어요.');

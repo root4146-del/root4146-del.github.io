@@ -446,22 +446,49 @@ button {
 .acct {
   border: 1px solid var(--line);
   border-radius: 3px;
-  padding: 18px 16px;
   text-align: left;
   background: #FCFBF6;
+  overflow: hidden;
 }
-.acct__side {
-  font-size: .82rem;
+
+/* 펼침/접힘 머리글 */
+.acct__head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px 16px;
+  background: transparent;
+  border: 0;
+  font-size: .85rem;
   font-weight: 600;
   letter-spacing: .08em;
   color: var(--olive-dk);
-  text-align: center;
-  padding-bottom: 12px;
-  margin-bottom: 14px;
-  border-bottom: 1px solid var(--line);
+  transition: background .2s;
 }
-.acct__row { display: flex; align-items: center; gap: 10px; }
-.acct__row + .acct__row { margin-top: 14px; }
+.acct__head:active { background: #F4F2EA; }
+.acct__chev {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+  color: var(--olive);
+  transition: transform .35s var(--ease);
+}
+.acct__head[aria-expanded="true"] .acct__chev { transform: rotate(180deg); }
+
+.acct__panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .38s var(--ease);
+}
+.acct__inner {
+  margin: 0 16px;
+  padding-bottom: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.acct__row { display: flex; align-items: center; gap: 10px; padding-top: 14px; }
 .acct__info { flex: 1 1 auto; min-width: 0; }
 .acct__who { font-size: .79rem; color: var(--muted); line-height: 1.6; }
 .acct__num {

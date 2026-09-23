@@ -36,6 +36,8 @@ window.WEDDING = {
        지도 마커와 티맵 길안내 목적지가 이 좌표를 씁니다. */
     lat: 37.4818021,
     lng: 126.7984948,
+    /* 지도 처음 확대 단계 (숫자가 클수록 가까이 · 15~19 권장) */
+    mapZoom: 17,
     /* 길찾기 앱에서 검색할 이름 */
     searchKeyword: '부천MJ컨벤션',
     tel: '',            // 예식장 대표번호를 아시면 넣어주세요. 비우면 버튼이 숨겨집니다.
@@ -92,6 +94,11 @@ window.WEDDING = {
       ]
     }
   ],
+
+  /* 화면 효과 — 꽃잎이 흩날리는 효과를 끄려면 petals 를 false 로 */
+  effects: {
+    petals: true
+  },
 
   /* 갤러리 — assets/img/gallery, assets/img/thumb 안의 파일명 */
   gallery: {

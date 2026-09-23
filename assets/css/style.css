@@ -303,6 +303,22 @@ button {
   border-radius: 50%;
 }
 .cal__cell.is-mark > span { position: relative; z-index: 1; }
+/* 예식일 주위로 잔잔하게 퍼지는 원 */
+.cal__cell.is-mark::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 1px solid var(--olive);
+  border-radius: 50%;
+  animation: ripple 2.6s var(--ease) infinite;
+}
+@keyframes ripple {
+  0%   { transform: scale(1);   opacity: .7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
 
 .dday {
   margin-top: 26px;
@@ -331,8 +347,10 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform .5s var(--ease);
+  opacity: 0;
+  transition: transform .5s var(--ease), opacity .7s var(--ease);
 }
+.grid__item img.is-loaded { opacity: 1; }
 .grid__item:active img { transform: scale(1.04); }
 
 /* ── 오시는 길 ───────────────────────────────────────────── */
@@ -355,6 +373,55 @@ button {
   overflow: hidden;
 }
 .map iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* Leaflet 지도 — 청첩장 색감에 맞게 살짝 톤을 누릅니다. */
+.map.leaflet-container { font-family: var(--font); background: #F1EFE8; }
+.map .leaflet-tile-pane { filter: saturate(.55) sepia(.12) brightness(1.03); }
+
+/* leaflet.css 가 나중에 불러와지므로 .map 을 붙여 우선순위를 높입니다. */
+.map .map-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+.map-pin__label {
+  margin-bottom: 3px;
+  padding: 3px 11px;
+  background: var(--olive-dk);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .18);
+}
+.map-pin svg {
+  width: 28px;
+  height: 36px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25));
+  animation: pin 1.8s var(--ease) infinite;
+}
+@keyframes pin {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+.map .leaflet-bar { border: 1px solid var(--line); box-shadow: 0 1px 4px rgba(0, 0, 0, .08); }
+.map .leaflet-bar a { color: var(--olive-dk); }
+.map .leaflet-control-attribution { font-size: 9px; background: rgba(253, 252, 248, .75); }
+.map-home {
+  padding: 5px 10px;
+  background: rgba(253, 252, 248, .94);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--olive-dk);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+}
+.map-home:active { background: #F4F2EA; }
 
 .btnrow {
   display: flex;
@@ -532,12 +599,57 @@ button {
 .foot p + p { margin-top: 7px; }
 
 /* ── 스크롤 등장 ─────────────────────────────────────────── */
-.reveal {
+/* 섹션 안의 요소가 차례로(--i 순서) 떠오르고, 세로선은 위에서 아래로 그려집니다. */
+.reveal > * {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .95s var(--ease), transform .95s var(--ease);
+  transform: translateY(18px);
+  transition: opacity .9s var(--ease), transform .9s var(--ease);
+  transition-delay: calc(var(--i, 0) * 110ms);
 }
-.reveal.is-in { opacity: 1; transform: none; }
+.reveal > .rule { transform: scaleY(0); transform-origin: top; }
+.reveal.is-in > * { opacity: 1; transform: none; }
+
+/* ── 표지 등장 ───────────────────────────────────────────── */
+.cover .ornament path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 2.2s var(--ease) .15s forwards;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.cover__title,
+.cover__names,
+.cover__meta,
+.scroll-cue { animation: rise 1.1s var(--ease) both; }
+.cover__title  { animation-delay: .45s; }
+.cover__names  { animation-delay: 1.25s; }
+.cover__meta   { animation-delay: 1.4s; }
+.cover__meta + .cover__meta { animation-delay: 1.5s; }
+.scroll-cue    { animation-delay: 1.8s; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.cover__photo { overflow: hidden; animation: fade 1.6s var(--ease) .7s both; }
+.cover__photo img { animation: settle 3.2s var(--ease) .7s both; }
+@keyframes settle { from { transform: scale(1.08); } to { transform: none; } }
+
+/* ── 꽃잎 ───────────────────────────────────────────────── */
+.petals {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(var(--w), 100%);
+  height: 100%;
+  z-index: 55;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+.petals.is-on { opacity: 1; }
 
 /* ── 사진 확대 보기 ──────────────────────────────────────── */
 .lightbox {
@@ -647,7 +759,7 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal > * { opacity: 1; transform: none; transition: none; }
   .scroll-cue span { animation: none; }
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }

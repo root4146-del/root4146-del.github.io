@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------
  * 임형근 ♥ 신상은 — 모바일 청첩장
- * 외부 라이브러리 / API 키 없이 동작합니다.
+ * API 키 없이 동작합니다. (지도만 Leaflet 을 CDN 에서 불러옵니다)
  * ------------------------------------------------------------------ */
 (function () {
   'use strict';
@@ -123,7 +123,7 @@
     var msg;
 
     if (left > 0) {
-      msg = who + '의 결혼식이 <b>' + left + '일</b> 남았습니다.';
+      msg = who + '의 결혼식이 <b><span data-count="' + left + '">' + left + '</span>일</b> 남았습니다.';
     } else if (left === 0) {
       msg = '오늘은 <b>' + who + '</b>의 결혼식 날입니다.';
     } else {
@@ -157,6 +157,14 @@
              (idx === 0 ? '' : ' loading="lazy"') + ' decoding="async"></button>';
     }).join('');
     wrap.innerHTML = html;
+
+    /* 썸네일이 다 받아지면 부드럽게 나타나게 합니다. */
+    Array.prototype.forEach.call(wrap.querySelectorAll('img'), function (img) {
+      var done = function () { img.classList.add('is-loaded'); };
+      if (img.complete) done();
+      else { img.addEventListener('load', done); img.addEventListener('error', done); }
+    });
+
     wrap.addEventListener('click', function (e) {
       var btn = e.target.closest('.grid__item');
       if (btn) openLightbox(+btn.dataset.idx);
@@ -240,16 +248,94 @@
   $('[data-place]').textContent = V.name + ' ' + V.hall;
   $('[data-address]').textContent = fullAddress;
 
+  /* 지도 — API 키가 필요 없는 Leaflet + OpenStreetMap 지도.
+     화면에 가까워졌을 때 불러오고, 실패하면 OpenStreetMap 기본 지도로 대체합니다. */
   (function buildMap() {
-    var dLat = 0.0035, dLng = 0.0055;
-    var r6 = function (n) { return n.toFixed(6); };
-    var bbox = [r6(V.lng - dLng), r6(V.lat - dLat),
-                r6(V.lng + dLng), r6(V.lat + dLat)].join('%2C');
-    var src = 'https://www.openstreetmap.org/export/embed.html?bbox=' + bbox +
-              '&layer=mapnik&marker=' + V.lat + '%2C' + V.lng;
-    $('[data-map]').innerHTML =
-      '<iframe src="' + src + '" loading="lazy" title="' + escapeHtml(V.name) + ' 위치"' +
-      ' referrerpolicy="no-referrer-when-downgrade"></iframe>';
+    var box = $('[data-map]');
+    var zoom = V.mapZoom || 17;
+    var LEAFLET = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/';
+
+    function fallback() {
+      /* 확대 단계에 맞춰 보이는 범위를 줄입니다 (한 단계마다 절반) */
+      var k = Math.pow(2, zoom - 15);
+      var dLat = 0.0035 / k, dLng = 0.0055 / k;
+      var r6 = function (n) { return n.toFixed(6); };
+      var bbox = [r6(V.lng - dLng), r6(V.lat - dLat),
+                  r6(V.lng + dLng), r6(V.lat + dLat)].join('%2C');
+      box.innerHTML =
+        '<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=' + bbox +
+        '&layer=mapnik&marker=' + V.lat + '%2C' + V.lng + '" title="' + escapeHtml(V.name) + ' 위치"' +
+        ' referrerpolicy="no-referrer-when-downgrade"></iframe>';
+    }
+
+    function draw() {
+      var L = window.L;
+      var touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      var map = L.map(box, {
+        center: [V.lat, V.lng],
+        zoom: zoom,
+        scrollWheelZoom: false,
+        /* 휴대폰에서는 한 손가락 스크롤이 페이지를 내리도록 끌기를 막고,
+           두 손가락으로만 확대·이동합니다. */
+        dragging: !touch,
+        tap: false,
+        zoomControl: false,
+        attributionControl: true
+      });
+      L.control.zoom({ position: 'bottomright', zoomInTitle: '확대', zoomOutTitle: '축소' }).addTo(map);
+      map.attributionControl.setPrefix(false);
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+      }).addTo(map);
+
+      var icon = L.divIcon({
+        className: 'map-pin',
+        iconSize: [160, 66],
+        iconAnchor: [80, 66],
+        html: '<span class="map-pin__label">' + escapeHtml(V.name) + '</span>' +
+              '<svg viewBox="0 0 30 38" aria-hidden="true">' +
+              '<path d="M15 37s12-12.6 12-22A12 12 0 0 0 3 15c0 9.4 12 22 12 22z" fill="#5F6941"/>' +
+              '<circle cx="15" cy="15" r="4.6" fill="#FDFCF8"/></svg>'
+      });
+      L.marker([V.lat, V.lng], { icon: icon, keyboard: false, interactive: false }).addTo(map);
+
+      /* 확대/이동해도 버튼 한 번으로 예식장 위치로 돌아옵니다. */
+      var Home = L.Control.extend({
+        options: { position: 'topright' },
+        onAdd: function () {
+          var b = L.DomUtil.create('button', 'map-home');
+          b.type = 'button';
+          b.textContent = '예식장 위치';
+          L.DomEvent.disableClickPropagation(b);
+          L.DomEvent.on(b, 'click', function () { map.flyTo([V.lat, V.lng], zoom, { duration: .6 }); });
+          return b;
+        }
+      });
+      new Home().addTo(map);
+    }
+
+    function load() {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = LEAFLET + 'leaflet.min.css';
+      document.head.appendChild(css);
+
+      var js = document.createElement('script');
+      js.src = LEAFLET + 'leaflet.min.js';
+      js.onload = function () {
+        try { draw(); } catch (e) { fallback(); }
+      };
+      js.onerror = fallback;
+      document.head.appendChild(js);
+    }
+
+    if (!('IntersectionObserver' in window)) { load(); return; }
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) { io.disconnect(); load(); }
+    }, { rootMargin: '600px 0px' });
+    io.observe(box);
   })();
 
   (function buildMapLinks() {
@@ -452,22 +538,142 @@
   $('[data-foot-date]').textContent =
     D.year + '. ' + pad(D.month) + '. ' + pad(D.day) + '.';
 
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* D-day 숫자가 0부터 차오르는 효과 */
+  function countUp(el) {
+    var to = +el.dataset.count;
+    if (reduceMotion || !(to > 0)) return;
+    var t0 = null, DUR = 1400;
+    el.textContent = '0';
+    requestAnimationFrame(function step(t) {
+      if (t0 === null) t0 = t;
+      var k = Math.min((t - t0) / DUR, 1);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(step);
+    });
+  }
+
   /* ── 스크롤 등장 ─────────────────────────────────────── */
+  /* 섹션 안의 요소들이 위에서부터 차례로 떠오릅니다. */
   (function reveal() {
     var items = document.querySelectorAll('.reveal');
+    Array.prototype.forEach.call(items, function (sec) {
+      Array.prototype.forEach.call(sec.children, function (el, i) {
+        el.style.setProperty('--i', Math.min(i, 6));
+      });
+    });
+    function show(el) {
+      el.classList.add('is-in');
+      var n = el.querySelector('[data-count]');
+      if (n) setTimeout(function () { countUp(n); }, 350);
+    }
     if (!('IntersectionObserver' in window)) {
-      Array.prototype.forEach.call(items, function (el) { el.classList.add('is-in'); });
+      Array.prototype.forEach.call(items, show);
       return;
     }
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (en.isIntersecting) {
-          en.target.classList.add('is-in');
+          show(en.target);
           io.unobserve(en.target);
         }
       });
     }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' });
     Array.prototype.forEach.call(items, function (el) { io.observe(el); });
+  })();
+
+  /* ── 꽃잎 흩날리기 ───────────────────────────────────── */
+  (function petals() {
+    if (reduceMotion || (W.effects && W.effects.petals === false)) return;
+    var cv = document.createElement('canvas');
+    var ctx = cv.getContext && cv.getContext('2d');
+    if (!ctx) return;
+    cv.className = 'petals';
+    cv.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(cv);
+
+    var COLORS = ['#F2C9C4', '#F6D8D3', '#EDBAB5', '#F4CFCA'];
+    var COUNT = 16;
+    var w = 0, h = 0, list = [], last = 0, raf = 0;
+
+    function size() {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = cv.clientWidth; h = cv.clientHeight;
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function spawn(p, first) {
+      p.x = Math.random() * w;
+      p.y = first ? -Math.random() * h * 1.2 - 10 : -14;   /* 처음엔 위에서 하나씩 들어옵니다 */
+      p.r = 4.5 + Math.random() * 4.5;
+      p.vy = 0.35 + Math.random() * 0.45;
+      p.vx = -0.12 + Math.random() * 0.3;
+      p.sway = 0.4 + Math.random() * 0.9;
+      p.ph = Math.random() * 6.283;
+      p.rot = Math.random() * 6.283;
+      p.vr = (Math.random() - 0.5) * 0.03;
+      p.flip = Math.random() * 6.283;
+      p.vf = 0.015 + Math.random() * 0.03;
+      p.c = COLORS[(Math.random() * COLORS.length) | 0];
+      p.a = 0.6 + Math.random() * 0.3;
+      return p;
+    }
+
+    /* 벚꽃잎 모양 — 끝이 살짝 파인 물방울 */
+    function petal(p) {
+      var r = p.r;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.scale(1, 0.35 + Math.abs(Math.cos(p.flip)) * 0.65);
+      ctx.globalAlpha = p.a;
+      ctx.fillStyle = p.c;
+      ctx.beginPath();
+      ctx.moveTo(0, r);
+      ctx.bezierCurveTo(-r, r * 0.35, -r * 0.85, -r * 0.9, -r * 0.2, -r);
+      ctx.quadraticCurveTo(0, -r * 0.72, r * 0.2, -r);
+      ctx.bezierCurveTo(r * 0.85, -r * 0.9, r, r * 0.35, 0, r);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function tick(t) {
+      var dt = last ? Math.min((t - last) / 16.67, 3) : 1;
+      last = t;
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < list.length; i++) {
+        var p = list[i];
+        p.ph += 0.02 * dt;
+        p.x += (p.vx + Math.sin(p.ph) * p.sway * 0.5) * dt;
+        p.y += p.vy * dt;
+        p.rot += p.vr * dt;
+        p.flip += p.vf * dt;
+        if (p.y > h + 16 || p.x < -20 || p.x > w + 20) spawn(p, false);
+        if (p.y > -12) petal(p);
+      }
+      raf = requestAnimationFrame(tick);
+    }
+
+    function start() { if (!raf) { last = 0; raf = requestAnimationFrame(tick); } }
+    function stop() { cancelAnimationFrame(raf); raf = 0; }
+
+    size();
+    for (var i = 0; i < COUNT; i++) list.push(spawn({}, true));
+
+    var rt;
+    window.addEventListener('resize', function () {
+      clearTimeout(rt);
+      rt = setTimeout(size, 150);
+    });
+    document.addEventListener('visibilitychange', function () {
+      document.hidden ? stop() : start();
+    });
+
+    /* 표지 등장 효과가 끝날 즈음 시작합니다. */
+    setTimeout(function () { cv.classList.add('is-on'); start(); }, 1600);
   })();
 
   function escapeHtml(s) {

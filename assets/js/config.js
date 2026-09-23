@@ -32,21 +32,21 @@ window.WEDDING = {
     area: '부천',          // 짧게 부를 때 쓰는 지역명 ("부천 MJ컨벤션")
     address: '경기 부천시 소사구 경인로 386',
     addressDetail: '(소사본동)',
-    /* MJ컨벤션 건물 좌표 (네이버 지도 place 37537597 기준).
+    /* MJ컨벤션 건물 좌표 (카카오맵 장소 27339651 기준).
        지도 마커와 티맵 길안내 목적지가 이 좌표를 씁니다. */
-    lat: 37.4818021,
-    lng: 126.7984948,
+    lat: 37.4817979,
+    lng: 126.7985120,
     /* 지도 처음 확대 단계 (숫자가 클수록 가까이 · 15~19 권장) */
     mapZoom: 16,
     /* 길찾기 앱에서 검색할 이름 */
     searchKeyword: '부천MJ컨벤션',
-    tel: '',            // 예식장 대표번호를 아시면 넣어주세요. 비우면 버튼이 숨겨집니다.
+    tel: '032-347-5500',  // 예식장 대표번호 (카카오맵 기준). 비우면 버튼이 숨겨집니다.
 
     /* 지도 앱 바로가기 — 비워두면 아래 좌표와 searchKeyword 로 자동 생성됩니다.
        티맵은 위 lat/lng(건물 좌표)로 길안내 목적지를 잡습니다. */
     mapLinks: {
       naver: 'https://map.naver.com/p/search/%EB%B6%80%EC%B2%9CMJ%EC%BB%A8%EB%B2%A4%EC%85%98/place/37537597',
-      kakao: 'https://map.kakao.com/?q=%EB%B6%80%EC%B2%9CMJ%EC%BB%A8%EB%B2%A4%EC%85%98',
+      kakao: 'https://map.kakao.com/link/map/27339651',
       tmap: ''
     },
     /* 교통편

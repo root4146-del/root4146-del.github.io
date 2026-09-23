@@ -241,7 +241,7 @@ button {
   white-space: nowrap;
 }
 .parents .p-pair { text-align: right; }
-.parents .p-of { color: var(--muted); font-size: .85rem; }
+.parents .p-of { color: var(--muted); font-size: .85rem; text-align: left; }
 .parents .p-child { font-weight: 600; text-align: left; }
 .parents__dot { color: var(--olive); font-style: normal; padding: 0 4px; }
 

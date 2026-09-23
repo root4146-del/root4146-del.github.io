@@ -709,7 +709,7 @@
     document.body.appendChild(cv);
 
     var COLORS = ['#F2C9C4', '#F6D8D3', '#EDBAB5', '#F4CFCA'];
-    var COUNT = 16;
+    var COUNT = 11;
     var w = 0, h = 0, list = [], last = 0, raf = 0;
 
     function size() {

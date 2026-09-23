@@ -100,7 +100,7 @@ window.WEDDING = {
      사이트 주소(https://root4146-del.github.io)가 등록되어 있어야 동작합니다.
      등록 전이거나 비워두면 지도는 OpenStreetMap 으로, 공유는 기본 공유창으로 대신합니다. */
   kakao: {
-    jsKey: 'eb24b278a9be88c06d9283d5767c5180',
+    jsKey: '7540f60e3394427be53a456069f6d43e',
     mapLevel: 4        // 카카오맵 확대 단계 (숫자가 작을수록 가까이 · 2~4 권장)
   },
 

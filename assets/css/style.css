@@ -422,6 +422,9 @@ button {
   box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
 }
 .map-home:active { background: #F4F2EA; }
+/* 카카오맵에서는 지도 위에 직접 띄웁니다 */
+.map--kakao { position: relative; }
+.map-home--float { position: absolute; top: 10px; left: 10px; z-index: 3; }
 
 .btnrow {
   display: flex;
@@ -461,6 +464,13 @@ button {
   border-color: var(--olive);
   color: #fff;
 }
+.btn--kakao {
+  background: #FEE500;
+  border-color: #FEE500;
+  color: #191919;
+}
+.btn--kakao svg { width: 18px; height: 18px; flex: 0 0 auto; }
+.btn--kakao:active { background: #F2D900; border-color: #F2D900; color: #191919; }
 .btn--fill:active { background: var(--olive-dk); border-color: var(--olive-dk); color: #fff; }
 
 .transport {

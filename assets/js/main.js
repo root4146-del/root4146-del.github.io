@@ -20,7 +20,6 @@
   var ampm = D.hour < 12 ? '오전' : '오후';
   var hour12 = D.hour % 12 || 12;
   var timeKo = ampm + ' ' + hour12 + '시' + (D.minute ? ' ' + D.minute + '분' : '');
-  var timeEn = hour12 + (D.minute ? ':' + pad(D.minute) : '') + (D.hour < 12 ? 'AM' : 'PM');
 
   /* ── 토스트 ──────────────────────────────────────────── */
   var toastEl = $('[data-toast]');
@@ -68,8 +67,8 @@
 
   /* ── 표지 ────────────────────────────────────────────── */
   $('[data-cover-date]').textContent =
-    D.year + '년 ' + pad(D.month) + '월 ' + pad(D.day) + '일 ' +
-    DOW[dowIndex] + '요일 ' + timeEn;
+    D.year + '년 ' + D.month + '월 ' + D.day + '일 ' +
+    DOW[dowIndex] + '요일 ' + timeKo;
 
   /* ── 인사말 ──────────────────────────────────────────── */
   $('[data-greeting]').innerHTML = W.greeting
@@ -248,12 +247,78 @@
   $('[data-place]').textContent = V.name + ' ' + V.hall;
   $('[data-address]').textContent = fullAddress;
 
-  /* 지도 — API 키가 필요 없는 Leaflet + OpenStreetMap 지도.
-     화면에 가까워졌을 때 불러오고, 실패하면 OpenStreetMap 기본 지도로 대체합니다. */
+  /* 지도 — 화면에 가까워졌을 때 불러옵니다.
+     카카오맵 → (실패 시) Leaflet + OpenStreetMap → (실패 시) OpenStreetMap 기본 지도 순서로 씁니다. */
   (function buildMap() {
     var box = $('[data-map]');
     var zoom = V.mapZoom || 17;
     var LEAFLET = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/';
+    var K = W.kakao || {};
+    var touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    var PIN = '<span class="map-pin__label">' + escapeHtml(V.name) + '</span>' +
+              '<svg viewBox="0 0 30 38" aria-hidden="true">' +
+              '<path d="M15 37s12-12.6 12-22A12 12 0 0 0 3 15c0 9.4 12 22 12 22z" fill="#5F6941"/>' +
+              '<circle cx="15" cy="15" r="4.6" fill="#FDFCF8"/></svg>';
+
+    function homeButton(onClick) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'map-home';
+      b.textContent = '예식장 위치';
+      b.addEventListener('click', onClick);
+      return b;
+    }
+
+    function drawKakao() {
+      var kmap = window.kakao.maps;
+      var center = new kmap.LatLng(V.lat, V.lng);
+      var level = K.mapLevel || 3;
+      box.classList.add('map--kakao');
+      var map = new kmap.Map(box, { center: center, level: level });
+
+      /* 휴대폰에서는 한 손가락 스크롤이 페이지를 내리도록 끌기를 막습니다.
+         확대·축소는 오른쪽 버튼으로 합니다. */
+      if (touch) map.setDraggable(false);
+      map.setZoomable(false);
+      map.addControl(new kmap.ZoomControl(), kmap.ControlPosition.RIGHT);
+
+      var pin = document.createElement('div');
+      pin.className = 'map-pin';
+      pin.style.cssText = 'width:160px;height:66px';
+      pin.innerHTML = PIN;
+      new kmap.CustomOverlay({ map: map, position: center, content: pin, xAnchor: 0.5, yAnchor: 1 });
+
+      var home = homeButton(function () { map.setLevel(level); map.panTo(center); });
+      home.classList.add('map-home--float');
+      box.appendChild(home);
+
+      /* 화면 폭이 바뀌면 지도 크기를 다시 맞추고 가운데로 되돌립니다. */
+      var rt;
+      window.addEventListener('resize', function () {
+        clearTimeout(rt);
+        rt = setTimeout(function () { map.relayout(); map.setCenter(center); }, 200);
+      });
+    }
+
+    function loadKakao() {
+      if (!K.jsKey) { load(); return; }
+      var done = false;
+      var giveUp = function () { if (!done) { done = true; load(); } };
+      var timer = setTimeout(giveUp, 7000);
+      var js = document.createElement('script');
+      js.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=' + K.jsKey + '&autoload=false';
+      js.onerror = function () { clearTimeout(timer); giveUp(); };   /* 도메인 미등록 등 */
+      js.onload = function () {
+        if (!window.kakao || !window.kakao.maps) { clearTimeout(timer); giveUp(); return; }
+        window.kakao.maps.load(function () {
+          clearTimeout(timer);
+          if (done) return;
+          done = true;
+          try { drawKakao(); } catch (e) { box.innerHTML = ''; box.className = 'map'; load(); }
+        });
+      };
+      document.head.appendChild(js);
+    }
 
     function fallback() {
       /* 확대 단계에 맞춰 보이는 범위를 줄입니다 (한 단계마다 절반) */
@@ -270,7 +335,6 @@
 
     function draw() {
       var L = window.L;
-      var touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
       var map = L.map(box, {
         center: [V.lat, V.lng],
         zoom: zoom,
@@ -294,10 +358,7 @@
         className: 'map-pin',
         iconSize: [160, 66],
         iconAnchor: [80, 66],
-        html: '<span class="map-pin__label">' + escapeHtml(V.name) + '</span>' +
-              '<svg viewBox="0 0 30 38" aria-hidden="true">' +
-              '<path d="M15 37s12-12.6 12-22A12 12 0 0 0 3 15c0 9.4 12 22 12 22z" fill="#5F6941"/>' +
-              '<circle cx="15" cy="15" r="4.6" fill="#FDFCF8"/></svg>'
+        html: PIN
       });
       L.marker([V.lat, V.lng], { icon: icon, keyboard: false, interactive: false }).addTo(map);
 
@@ -305,11 +366,8 @@
       var Home = L.Control.extend({
         options: { position: 'topright' },
         onAdd: function () {
-          var b = L.DomUtil.create('button', 'map-home');
-          b.type = 'button';
-          b.textContent = '예식장 위치';
+          var b = homeButton(function () { map.flyTo([V.lat, V.lng], zoom, { duration: .6 }); });
           L.DomEvent.disableClickPropagation(b);
-          L.DomEvent.on(b, 'click', function () { map.flyTo([V.lat, V.lng], zoom, { duration: .6 }); });
           return b;
         }
       });
@@ -331,9 +389,9 @@
       document.head.appendChild(js);
     }
 
-    if (!('IntersectionObserver' in window)) { load(); return; }
+    if (!('IntersectionObserver' in window)) { loadKakao(); return; }
     var io = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) { io.disconnect(); load(); }
+      if (entries[0].isIntersecting) { io.disconnect(); loadKakao(); }
     }, { rootMargin: '600px 0px' });
     io.observe(box);
   })();
@@ -467,7 +525,63 @@
   var shareText = D.year + '년 ' + D.month + '월 ' + D.day + '일 ' + DOW[dowIndex] + '요일 ' + timeKo +
                   '\n' + V.name + ' ' + V.hall;
 
-  $('[data-share]').addEventListener('click', function () {
+  /* 카카오톡 공유 — 사진 · 제목 · 날짜가 들어간 카드로 보냅니다.
+     로컬에서 미리 볼 때도 실제 주소가 공유되도록 canonical 주소를 씁니다. */
+  var KAKAO_SDK = 'https://t1.kakaocdn.net/kakao_js_sdk/2.8.3/kakao.min.js';
+  var KAKAO_SRI = 'sha384-oroumrnFVE0xtgqyDZJARgERibXg2C28380uaUZz2kHDS5CR7tu20eGiOU6GkTpy';
+  var siteUrl = ($('link[rel="canonical"]') || {}).href || shareUrl;
+  var ogImage = ($('meta[property="og:image"]') || {}).content;
+
+  function kakaoReady() {
+    return window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized();
+  }
+
+  (function loadKakaoShare() {
+    var key = W.kakao && W.kakao.jsKey;
+    if (!key) return;
+    var inject = function () {
+      var js = document.createElement('script');
+      js.src = KAKAO_SDK;
+      js.integrity = KAKAO_SRI;
+      js.crossOrigin = 'anonymous';
+      js.onload = function () {
+        try { if (!window.Kakao.isInitialized()) window.Kakao.init(key); } catch (e) {}
+      };
+      document.head.appendChild(js);
+    };
+    /* 첫 화면을 그리는 데 방해되지 않도록 페이지를 다 불러온 뒤 받습니다. */
+    if (document.readyState === 'complete') setTimeout(inject, 300);
+    else window.addEventListener('load', function () { setTimeout(inject, 300); });
+  })();
+
+  function shareKakao() {
+    var link = { mobileWebUrl: siteUrl, webUrl: siteUrl };
+    var mapLink = { mobileWebUrl: siteUrl + '#location', webUrl: siteUrl + '#location' };
+    window.Kakao.Share.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: shareTitle,
+        description: shareText,
+        imageUrl: ogImage,
+        imageWidth: 1200,
+        imageHeight: 630,
+        link: link
+      },
+      buttons: [
+        { title: '청첩장 보기', link: link },
+        { title: '오시는 길', link: mapLink }
+      ]
+    });
+  }
+
+  $('[data-share-kakao]').addEventListener('click', function () {
+    if (kakaoReady()) {
+      try { shareKakao(); return; } catch (e) { /* 아래 기본 공유로 */ }
+    }
+    shareNative();
+  });
+
+  function shareNative() {
     if (navigator.share) {
       navigator.share({ title: shareTitle, text: shareText, url: shareUrl })
         .catch(function () { /* 사용자가 취소한 경우 — 무시 */ });
@@ -477,7 +591,7 @@
         function () { toast('주소창의 링크를 복사해 주세요.'); }
       );
     }
-  });
+  }
   bindCopy($('[data-copy-url]'), shareUrl, '링크를 복사했어요.');
 
   /* ── 배경음악 ────────────────────────────────────────── */
